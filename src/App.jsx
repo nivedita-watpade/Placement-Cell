@@ -1,6 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import supabase from "./config/supabase";
-import { BrowserRouter } from "react-router-dom";
 import Main from "./components/Main";
 
 function App() {
@@ -15,9 +14,7 @@ function App() {
 
   return (
     <>
-      <BrowserRouter>
-        <Main />
-      </BrowserRouter>
+      <Main />
     </>
   );
 }
