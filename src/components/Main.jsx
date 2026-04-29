@@ -11,6 +11,9 @@ import Jobs from "../pages/Jobs";
 import ApplyJobs from "../pages/ApplyJobs";
 import CreateJob from "../pages/CreateJob";
 import ViewApplicants from "../pages/ViewApplicants";
+import StudentProfile from "../pages/StudentProfile";
+import CreateStudentProfile from "../pages/CreateStudentProfile";
+import { StudentProfileProvider } from "../context/StudentProfileContext";
 
 function Main() {
   return (
@@ -27,7 +30,9 @@ function Main() {
               element={
                 <ProtectedRoute>
                   <JobProvider>
-                    <AppLayout />
+                    <StudentProfileProvider>
+                      <AppLayout />
+                    </StudentProfileProvider>
                   </JobProvider>
                 </ProtectedRoute>
               }
@@ -37,9 +42,18 @@ function Main() {
               <Route path="/jobs" element={<Jobs />}></Route>
               <Route path="/apply-jobs" element={<ApplyJobs />}></Route>
               <Route path="/create-job" element={<CreateJob />}></Route>
+              <Route path="/update-job/:id" element={<CreateJob />}></Route>
               <Route
                 path="/view-applicants/:id"
                 element={<ViewApplicants />}
+              ></Route>
+              <Route
+                path="/student-profile"
+                element={<StudentProfile />}
+              ></Route>
+              <Route
+                path="/create-student-profile"
+                element={<CreateStudentProfile />}
               ></Route>
             </Route>
           </Routes>

@@ -76,3 +76,16 @@ h2 {
   color: #4f46e5;
   cursor: pointer;
 }
+
+.collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 85%;
+}
+
+.expanded {
+  display: block;
+}

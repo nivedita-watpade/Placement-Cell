@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { useJob } from "../context/JobContext";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import supabase from "../config/supabase";
 import { exportToExcel } from "../utils/exportToExcel";
+import NoDataFoundMsg from "../components/NoDataFoundMsg";
+// import { useStudentProfile } from "../context/StudentProfileContext";
 
 function ViewApplicants() {
   const { applicants, fetchApplicantsData } = useJob();
   const [jobStatus, setJobStatus] = useState("");
   const { id } = useParams();
+
+  // const { studentProfile } = useStudentProfile();
 
   useEffect(() => {
     fetchApplicantsData(id);
@@ -34,7 +38,7 @@ function ViewApplicants() {
     exportToExcel(formattedData);
   }
 
-  if (!applicants || !applicants.length) return <p>No data found!</p>;
+  if (!applicants || !applicants.length) return <NoDataFoundMsg />;
 
   return (
     <div className="bg-white p-7 rounded-xl w-5xl my-7.5 mx-auto text-center">
@@ -64,10 +68,13 @@ function ViewApplicants() {
             return (
               <tr key={applicant.id}>
                 <td className="border p-1">{applicant.USERS.full_name}</td>
-                <td className="border p-1">Nivi's Profile</td>
+                <td className="border p-1">
+                  <Link className="text-blue-700 underline">View Profile</Link>
+                </td>
                 <td className="border p-1 flex gap-4">
                   <select
                     className="w-40 p-1 rounded-md border border-[#858585] outline-0"
+                    value={jobStatus || ""}
                     onChange={(e) => setJobStatus(e.target.value)}
                   >
                     {!applicant.status && (
@@ -78,7 +85,12 @@ function ViewApplicants() {
                   </select>
                   <button
                     onClick={() => handleUpdateApplicants(applicant.id)}
-                    className="inline-block py-1 px-4  text-white rounded-lg cursor-pointer bg-green-700"
+                    disabled={!jobStatus}
+                    className={`inline-block py-1 px-4 text-white rounded-lg bg-green-700 ${
+                      !jobStatus
+                        ? "opacity-50 cursor-not-allowed"
+                        : "opacity-100"
+                    }`}
                   >
                     Update
                   </button>

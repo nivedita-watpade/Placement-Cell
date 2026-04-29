@@ -1,9 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function Signup() {
   const { state, handleChange, handleRegisterUsers } = useAuth();
   const { fullName, email, password, role } = state;
+
+  const navigate = useNavigate();
 
   async function handleRegister(e) {
     e.preventDefault();
@@ -15,6 +17,7 @@ function Signup() {
 
     try {
       await handleRegisterUsers();
+      navigate("/");
     } catch (err) {
       console.log(err.message);
     }

@@ -14,7 +14,10 @@ function JobProvider({ children }) {
   useEffect(() => {
     // Fetch  Jobs Data
     const fetchJobs = async () => {
-      const { data, error } = await supabase.from("JOBPOSTS").select("*");
+      const { data, error } = await supabase
+        .from("JOBPOSTS")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (!error) setJobs(data);
     };
@@ -53,7 +56,6 @@ function JobProvider({ children }) {
   }
 
   async function handleJobApply(jobId) {
-    console.log(jobId);
     const { error, data } = await supabase
       .from("JOBSAPPLIED")
       .insert([{ job_id: jobId, student_id: currUser.id }])
@@ -72,6 +74,7 @@ function JobProvider({ children }) {
       .delete()
       .eq("id", jobId);
 
+    alert("Are you sure to delete job post.");
     console.log(data);
 
     setJobs((prevJobs) => prevJobs.filter((prevJob) => prevJob.id !== jobId));
@@ -94,6 +97,33 @@ function JobProvider({ children }) {
       .eq("job_id", jobId);
 
     setApplicants(data);
+    if (error) throw new Error(error.message);
+  }
+
+  async function handleUpdateJobPost(jobId, updatedData) {
+    const { role, companyName, jobPackage, description } = updatedData;
+    const { data, error } = await supabase
+      .from("JOBPOSTS")
+      .update({
+        role,
+        company_name: companyName,
+        job_description: description,
+        salary_package: jobPackage,
+      })
+      .eq("id", jobId)
+      .select();
+
+    if (error) throw new Error(error.message);
+
+    setJobs((jobs) =>
+      jobs.map((job) => {
+        if (job.id === jobId) {
+          return data[0];
+        } else {
+          return job;
+        }
+      }),
+    );
   }
 
   return (
@@ -106,6 +136,7 @@ function JobProvider({ children }) {
         handleCreateJobs,
         handleJobApply,
         handleDeleteJobPost,
+        handleUpdateJobPost,
       }}
     >
       {children}

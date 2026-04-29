@@ -27,7 +27,6 @@ function reducer(state, action) {
 
 function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
-
   const { fullName, email, password, role } = state;
 
   const [currUser, setCurrUser] = useState(() => {
@@ -73,6 +72,11 @@ function AuthProvider({ children }) {
     return data;
   }
 
+  function handleLogout() {
+    setCurrUser(null);
+    sessionStorage.removeItem("user");
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -81,6 +85,7 @@ function AuthProvider({ children }) {
         login,
         handleChange,
         handleRegisterUsers,
+        handleLogout,
       }}
     >
       {children}
