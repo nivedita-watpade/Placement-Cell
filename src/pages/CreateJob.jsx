@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useJob } from "../context/JobContext";
-import { useReducer, useEffect, useMemo } from "react";
+import { useReducer, useEffect, useMemo, useState } from "react";
 
 const initialState = {
   role: "",
@@ -40,6 +40,8 @@ function CreateJob() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { role, companyName, jobPackage, description } = state;
 
+  const [isChanged, setIsChanged] = useState(false);
+
   const job = useMemo(() => {
     return jobs.find((job) => job.id === Number(id));
   }, [jobs, id]);
@@ -54,6 +56,8 @@ function CreateJob() {
       field: e.target.name,
       value: e.target.value,
     });
+
+    setIsChanged(true);
   }
 
   useEffect(() => {
@@ -139,8 +143,9 @@ function CreateJob() {
         />
 
         <button
-          className="w-full p-2.5 bg-[#4f46e5] text-white border-0 rounded-lg cursor-pointer"
+          className="w-full p-2.5 bg-[#4f46e5] text-white border-0 rounded-lg cursor-pointer disabled:opacity-50"
           type="submit"
+          disabled={!isChanged}
         >
           {isEdit ? "Update Application" : "Submit Application"}
         </button>

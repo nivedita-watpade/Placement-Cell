@@ -14,6 +14,7 @@ import ViewApplicants from "../pages/ViewApplicants";
 import StudentProfile from "../pages/StudentProfile";
 import CreateStudentProfile from "../pages/CreateStudentProfile";
 import { StudentProfileProvider } from "../context/StudentProfileContext";
+import AppliedJobList from "../pages/AppliedJobList";
 
 function Main() {
   return (
@@ -48,12 +49,21 @@ function Main() {
                 element={<ViewApplicants />}
               ></Route>
               <Route
-                path="/student-profile"
+                path="/student-profile/:id"
                 element={<StudentProfile />}
               ></Route>
               <Route
                 path="/create-student-profile"
                 element={<CreateStudentProfile />}
+              ></Route>
+
+              <Route
+                path="/edit-student-profile/:id"
+                element={<CreateStudentProfile />}
+              />
+              <Route
+                path="/applied-job-list/:status"
+                element={<AppliedJobList />}
               ></Route>
             </Route>
           </Routes>

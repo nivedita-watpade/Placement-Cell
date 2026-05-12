@@ -1,12 +1,12 @@
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import { useStudentProfile } from "../context/StudentProfileContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const initialState = {
   profileImage: "",
   role: "",
   location: "",
-  phone: "",
+  contact: "",
   about: "",
   skills: [],
   educations: [],
@@ -29,7 +29,12 @@ function reducer(state, action) {
 }
 
 function CreateStudentProfile() {
-  const { handleCreateProfile } = useStudentProfile();
+  const { handleCreateProfile, studentProfile, handleUpdateProfile } =
+    useStudentProfile();
+
+  const { id } = useParams();
+
+  const isEdit = Boolean(id);
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -54,20 +59,61 @@ function CreateStudentProfile() {
   async function onCreateProfile(e) {
     e.preventDefault();
     try {
-      await handleCreateProfile(state);
-      // dispatch({ type: "RESET" });
-      alert("Created profile successfully!...");
-      navigate("/student-profile");
+      const formattedData = {
+        ...state,
+        skills: state.skills,
+        educations: state.educations,
+        resume_ref: state.resume_ref,
+        profile_image_ref: state.profile_image_ref,
+      };
+
+      if (isEdit) {
+        await handleUpdateProfile(id, formattedData);
+        alert("Profile updated successfully!");
+      } else {
+        await handleCreateProfile(formattedData);
+        alert("Created profile successfully!");
+      }
+
+      navigate(`/student-profile/${id}`);
     } catch (err) {
       console.log(err);
     }
   }
 
+  useEffect(() => {
+    if (isEdit && studentProfile?.length > 0) {
+      const data = studentProfile[0];
+      if (!data) return;
+
+      const updateFields = (fields) => {
+        Object.entries(fields).forEach(([field, value]) => {
+          dispatch({
+            type: "UPDATE_FIELD",
+            field,
+            value: value || "",
+          });
+        });
+      };
+
+      updateFields({
+        role: data.role,
+        location: data.location,
+        contact: data.contact,
+        about: data.about,
+        skills: data.skills?.join(",") || [],
+        educations: data.educations?.join(",") || [],
+        profileImage: data.profile_image_ref,
+        resume: data.resume_ref,
+      });
+    }
+  }, [isEdit, studentProfile]);
+
   return (
     <div className="bg-gray-100 min-h-screen py-10 px-4">
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-6">
         <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-          Create Profile
+          {isEdit ? "Update Profile" : "Create Profile"}
         </h2>
 
         <form className="space-y-5" onSubmit={onCreateProfile}>
@@ -89,6 +135,7 @@ function CreateStudentProfile() {
             <input
               type="text"
               name="role"
+              value={state.role}
               placeholder="Role"
               className="border p-2 rounded-lg"
               onChange={handleChange}
@@ -96,6 +143,7 @@ function CreateStudentProfile() {
             <input
               type="text"
               name="location"
+              value={state.location}
               placeholder="Location"
               className="border p-2 rounded-lg"
               onChange={handleChange}
@@ -103,7 +151,8 @@ function CreateStudentProfile() {
 
             <input
               type="text"
-              name="phone"
+              name="contact"
+              value={state.contact}
               placeholder="Phone"
               className="border p-2 rounded-lg "
               onChange={handleChange}
@@ -115,6 +164,7 @@ function CreateStudentProfile() {
             placeholder="About"
             rows="3"
             name="about"
+            value={state.about}
             className="border p-2 rounded-lg w-full"
             onChange={handleChange}
           ></textarea>
@@ -123,6 +173,7 @@ function CreateStudentProfile() {
           <input
             type="text"
             name="skills"
+            value={state.skills}
             placeholder="Skills (comma separated)"
             className="border p-2 rounded-lg w-full"
             onChange={handleChange}
@@ -132,6 +183,7 @@ function CreateStudentProfile() {
           <input
             type="text"
             name="educations"
+            value={state.educations}
             placeholder="Education"
             className="border p-2 rounded-lg w-full"
             onChange={handleChange}

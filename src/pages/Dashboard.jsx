@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import StatCard from "../components/StatCard";
 import { useAuth } from "../context/AuthContext";
 import { useJob } from "../context/JobContext";
@@ -31,9 +32,27 @@ function Dashboard() {
 
         {currUser.role === "student" && (
           <>
-            <StatCard title="Applied Jobs" count={appliedJobsNum.length} />
-            <StatCard title="Shortlisted Jobs" count={shortlistedJob.length} />
-            <StatCard title="Rejected Jobs" count={rejectedJob.length} />
+            <Link
+              to="/applied-job-list/Applied"
+              className="flex-1 min-w-48 bg-white p-5 rounded-xl text-center"
+            >
+              <StatCard title="Applied Jobs" count={appliedJobsNum.length} />
+            </Link>
+            <Link
+              to="/applied-job-list/Shortlisted"
+              className="flex-1 min-w-48 bg-white p-5 rounded-xl text-center"
+            >
+              <StatCard
+                title="Shortlisted Jobs"
+                count={shortlistedJob.length}
+              />
+            </Link>
+            <Link
+              to="/applied-job-list/Rejected"
+              className="flex-1 min-w-48 bg-white p-5 rounded-xl text-center"
+            >
+              <StatCard title="Rejected Jobs" count={rejectedJob.length} />
+            </Link>
           </>
         )}
       </div>

@@ -28,7 +28,7 @@ function Navbar() {
           <div className="absolute hidden -left-5 top-[15px] group-hover:block bg-white shadow-md mt-2 rounded">
             {currUser.role === "student" && (
               <Link
-                to="student-profile"
+                to={`student-profile/${currUser.id}`}
                 className="block text-[#4f46e5] px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 w-full text-left"
               >
                 Profile

@@ -74,7 +74,6 @@ function JobProvider({ children }) {
       .delete()
       .eq("id", jobId);
 
-    alert("Are you sure to delete job post.");
     console.log(data);
 
     setJobs((prevJobs) => prevJobs.filter((prevJob) => prevJob.id !== jobId));
@@ -90,6 +89,7 @@ function JobProvider({ children }) {
       .select(
         ` id,
   status,
+  student_id,
   USERS (full_name, email),
   JOBPOSTS (role, company_name)
 `,

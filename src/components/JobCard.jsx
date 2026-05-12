@@ -3,11 +3,15 @@ import { useAuth } from "../context/AuthContext";
 import { useJob } from "../context/JobContext";
 import { useState } from "react";
 import { useStudentProfile } from "../context/StudentProfileContext";
+import ConfirmationMessage from "./ConfirmationMessage";
 
 function JobCard({ job }) {
   const { currUser } = useAuth();
   const { studentProfile } = useStudentProfile();
   const [show, setShow] = useState(false);
+
+  const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
+  const [postIdDelete, setPostIdDelete] = useState(null);
 
   const { appliedJobs, handleJobApply, handleDeleteJobPost } = useJob();
   const { role, company_name, salary_package, job_description } = job;
@@ -32,12 +36,41 @@ function JobCard({ job }) {
     }
   }
 
+  // async function onDeletePost(id) {
+  //   try {
+  //     await handleDeleteJobPost(id);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
+
   async function onDeletePost(id) {
+    setIsModalDeleteOpen(true);
+    setPostIdDelete(id);
+  }
+
+  async function handleConfirmDelete() {
     try {
-      await handleDeleteJobPost(id);
+      await handleDeleteJobPost(postIdDelete);
+      setIsModalDeleteOpen(false);
     } catch (err) {
       console.log(err);
+      setIsModalDeleteOpen(false);
     }
+  }
+
+  function handleCancelDelete() {
+    setIsModalDeleteOpen(false);
+  }
+
+  if (isModalDeleteOpen) {
+    return (
+      <ConfirmationMessage
+        message={"Are you sure you want to delete this post?"}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
+    );
   }
 
   return (

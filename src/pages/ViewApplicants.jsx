@@ -69,7 +69,12 @@ function ViewApplicants() {
               <tr key={applicant.id}>
                 <td className="border p-1">{applicant.USERS.full_name}</td>
                 <td className="border p-1">
-                  <Link className="text-blue-700 underline">View Profile</Link>
+                  <Link
+                    to={`/student-profile/${applicant.student_id}`}
+                    className="text-blue-700 underline"
+                  >
+                    View Profile
+                  </Link>
                 </td>
                 <td className="border p-1 flex gap-4">
                   <select
@@ -78,13 +83,16 @@ function ViewApplicants() {
                     onChange={(e) => setJobStatus(e.target.value)}
                   >
                     {!applicant.status && (
-                      <option value="">Update Status</option>
+                      <option value="Applied">Update Status</option>
                     )}
                     <option value="Shortlisted">Shortlisted</option>
                     <option value="Rejected">Rejected</option>
                   </select>
                   <button
-                    onClick={() => handleUpdateApplicants(applicant.id)}
+                    onClick={() => {
+                      console.log(applicant.id);
+                      handleUpdateApplicants(applicant.id);
+                    }}
                     disabled={!jobStatus}
                     className={`inline-block py-1 px-4 text-white rounded-lg bg-green-700 ${
                       !jobStatus

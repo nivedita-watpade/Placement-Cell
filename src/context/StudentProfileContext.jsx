@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import supabase from "../config/supabase";
 import { useAuth } from "./AuthContext";
 
@@ -28,7 +28,7 @@ function StudentProfileProvider({ children }) {
       profileImage,
       role,
       location,
-      phone,
+      contact,
       about,
       skills,
       educations,
@@ -38,7 +38,7 @@ function StudentProfileProvider({ children }) {
     if (
       !role ||
       !location ||
-      !phone ||
+      !contact ||
       !about ||
       !skills ||
       !educations ||
@@ -62,7 +62,7 @@ function StudentProfileProvider({ children }) {
           student_id,
           role,
           location,
-          contact: phone,
+          contact,
           about,
           skills: skills?.length ? skills.split(",") : [],
           educations: educations?.length ? educations.split(",") : [],
@@ -77,37 +77,56 @@ function StudentProfileProvider({ children }) {
     setStudentProfile(data);
   }
 
-  useEffect(() => {
-    if (!currUser?.id) return;
-    try {
-      async function fetchStudentProfile() {
-        const { data, error } = await supabase
-          .from("STUDENTPROFILES")
-          .select("*")
-          .eq("student_id", Number(currUser.id));
+  async function handleUpdateProfile(id, updatedData) {
+    console.log("updatedData", updatedData);
 
-        if (error) throw new Error(error.message);
+    let resumeUrl = updatedData.resume_ref;
+    let profileImgUrl = updatedData.profile_image_ref;
 
-        setStudentProfile(data);
-
-        setIsLoading(false);
-      }
-      fetchStudentProfile();
-    } catch (err) {
-      console.log(err);
-      setIsLoading(false);
+    if (updatedData.resume instanceof File) {
+      resumeUrl = await uploadFile(updatedData.resume, "Resumes");
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currUser?.id]);
+    if (updatedData.profileImage instanceof File) {
+      profileImgUrl = await uploadFile(
+        updatedData.profileImage,
+        "ProfileImages",
+      );
+    }
+
+    const updatedValue = {
+      role: updatedData.role,
+      location: updatedData.location,
+      contact: updatedData.contact,
+      about: updatedData.about,
+      skills: updatedData.skills.split(",") || [],
+      educations: updatedData.educations.split(",") || [],
+    };
+
+    if (resumeUrl) {
+      updatedValue.resume_ref = resumeUrl;
+    }
+
+    if (profileImgUrl) {
+      updatedValue.profile_image_ref = profileImgUrl;
+    }
+    const { error } = await supabase
+      .from("STUDENTPROFILES")
+      .update(updatedValue)
+      .eq("student_id", id)
+      .select();
+
+    if (error) throw new Error(error.message);
+  }
 
   return (
     <StudentProfileContext.Provider
       value={{
         studentProfile,
-
         isLoading,
+        handleUpdateProfile,
         setStudentProfile,
+        setIsLoading,
         handleCreateProfile,
       }}
     >

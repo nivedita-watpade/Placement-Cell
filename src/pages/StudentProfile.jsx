@@ -1,17 +1,50 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useStudentProfile } from "../context/StudentProfileContext";
 import CreateStudentProfile from "./CreateStudentProfile";
 import { useAuth } from "../context/AuthContext";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useJob } from "../context/JobContext";
+import supabase from "../config/supabase";
 
 function StudentProfile() {
-  const { studentProfile, isLoading } = useStudentProfile();
+  const { studentProfile, isLoading, setStudentProfile, setIsLoading } =
+    useStudentProfile();
   const { currUser } = useAuth();
   const { jobs, appliedJobs } = useJob();
   const studentInfo = studentProfile[0];
+  const { id } = useParams();
 
-  console.log(studentInfo);
+  useEffect(() => {
+    if (!id) return;
+    try {
+      async function fetchStudentProfile() {
+        const { data, error } = await supabase
+          .from("STUDENTPROFILES")
+          .select(
+            `
+    *,
+    USERS (
+      full_name,
+      email
+    )
+  `,
+          )
+          .eq("student_id", Number(id));
+
+        if (error) throw new Error(error.message);
+
+        setStudentProfile(data);
+
+        setIsLoading(false);
+      }
+      fetchStudentProfile();
+    } catch (err) {
+      console.log(err);
+      setIsLoading(false);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const allAppliedJobs = useMemo(
     function () {
@@ -80,23 +113,32 @@ function StudentProfile() {
 
           <div className="flex-1">
             <h2 className="text-2xl font-semibold text-gray-800">
-              {currUser.full_name}
+              {currUser.role === "student"
+                ? currUser.full_name
+                : studentInfo.USERS.full_name}
             </h2>
             <p className="text-gray-500">{studentInfo.role}</p>
 
             <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-500">
               <span>📍 {studentInfo.location}</span>
-              <span>📧 {currUser.email}</span>
+              <span>
+                📧
+                {currUser.role === "student"
+                  ? currUser.email
+                  : studentInfo.USERS.email}
+              </span>
               <span>📞 +91 {studentInfo.contact}</span>
             </div>
           </div>
 
-          <Link
-            to="/create-student-profile"
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
-          >
-            Edit Profile
-          </Link>
+          {currUser.role === "student" && (
+            <Link
+              to={`/edit-student-profile/${studentInfo.student_id}`}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+            >
+              Edit Profile
+            </Link>
+          )}
         </div>
 
         <div className="mt-6">
@@ -140,7 +182,10 @@ function StudentProfile() {
               >
                 Download Resume
               </a> */}
-              <button onClick={handleDownload} className="text-indigo-600">
+              <button
+                onClick={handleDownload}
+                className="text-indigo-600 cursor-pointer"
+              >
                 Download Resume
               </button>
             </p>
